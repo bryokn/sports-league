@@ -270,10 +270,36 @@ def edit_players():
     else:
         print("No players found.")
 
-
+#Edit venues function
 def edit_venues():
-    pass
-
+    venues = session.query(Venue).all()
+    if venues:
+        print("Available Venues: \n")
+        for venue in venues:
+            print(f"Venue ID: {venue.id}")
+            print(f"Name: {venue.name}")
+            print(f"Location: {veue.location}")
+            print(f"Availability Schedule: {venue.availability_schedule}")
+            print()
+        venue_id = int(input("Enter the Venue Id to edit: "))
+        venue = session.get(Venue, venue_id)
+        if venue:
+            new_name = input(f"Enter the new venue name (current:{venue.name}):")
+            new_location = input(f"Enter the new venue location (current {venue.location}):")
+            new_availability = input(f"Enter the new availability schedule (current {venue.availability_schedule}):")
+            if new_name:
+                venue.name = new_name
+            if new_location:
+                venue.location = new_location
+            if new_availability:
+                venue.availability_schedule = new_availability
+            session.commit()
+            print("Venue Information Updated Successfully!")
+        else:
+            print("Invalid Venue ID!!")
+    else:
+        print("No venues found!")
+                
 ##START OF INTERFACE FUNCTIONS - ADMIN and USER
 #admin interface to add players, teams, coaches, matches, venues and show team captains
 def admin_interface():
