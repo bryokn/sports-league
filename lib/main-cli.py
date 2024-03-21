@@ -7,6 +7,7 @@ from datetime import datetime
 Session = sessionmaker(bind=engine) #session class
 session = Session() #session instance
 
+## ADDING DATA FUNCTIONS
 #add new team function
 def add_team():
     team_name = input("Enter team name: ")
@@ -26,7 +27,16 @@ def add_player():
     player_contact = input("Enter player contact information: ")
     team_id = int(input("Enter team ID: "))
     team = session.get(Team, team_id)
-    player = Player(name=player_name, age=player_age, position=player_position, contact_info=player_contact, team=team)
+    #dictionary to store player info
+    player_info = {
+        'name': player_name,
+        'age': player_age,
+        'position': player_position,
+        'contact_info': player_contact,
+        'team' : team
+    }
+    #new player instance using the dictionary
+    player = Player(**player_info)
     session.add(player)
     session.commit()
     print("Player added successfully!")
@@ -79,6 +89,7 @@ def assign_team_captain():
     else:
         print("Invalid Team or Player ID, or the player is not part of this team.")
 
+## VIEWING FUNCTIONS - Team Captains, All players, Teams, League Table, Previous matches and Venues
 #Show team captains function
 def show_team_captains():
     captains = session.query(TeamCaptain).join(Player).join(Team).all()
@@ -147,28 +158,32 @@ def view_league_table():
     teams = session.query(Team).options(
         joinedload(Team.home_matches, Match.home_team),
         joinedload(Team.away_matches, Match.away_team)
-    ).all() # load teams and their associated home and away matches
+    ).all()
 
     if teams:
-        table = []
+        table = [] #initialize empty list for league table data
         for team in teams:
             home_wins = sum(1 for match in team.home_matches if match.home_team_score > match.away_team_score) #calculate home wins
             home_draws = sum(1 for match in team.home_matches if match.home_team_score == match.away_team_score) #calculate home draws
             away_wins = sum(1 for match in team.away_matches if match.away_team_score > match.home_team_score) #calculate away wins
             away_draws = sum(1 for match in team.away_matches if match.away_team_score == match.home_team_score) #calculate away draws
-            points = (home_wins + away_wins) * 3 + home_draws + away_draws # calculate total points
-            goals_scored = sum(match.home_team_score for match in team.home_matches) + sum(match.away_team_score for match in team.away_matches) #calculaet goals scored
-            goals_conceded = sum(match.away_team_score for match in team.home_matches) + sum(match.home_team_score for match in team.away_matches) #calculate goals conceded
-            goal_difference = goals_scored - goals_conceded #goal difference
-            table.append((team.name, points, goal_difference, goals_scored, goals_conceded)) #adds stats to table
-
-        print("League Table 📋 \n")
-        print("{:20} {:5} {:5} {:5} {:5}".format("Team", "Pts", "GD", "GF", "GA")) #table header
-        table.sort(key=lambda x: (-x[1], -x[2], -x[3], x[0])) #sorts table on points, GD, GS and team name
-        for team_name, points, goal_difference, goals_scored, goals_conceded in table:
-            print("{:20} {:5} {:5} {:5} {:5}".format(team_name, points, goal_difference, goals_scored, goals_conceded)) #print table rows
+            points = (home_wins + away_wins) * 3 + home_draws + away_draws #calculate points 3 for a win and 1 for a draw
+            goals_scored = sum(match.home_team_score for match in team.home_matches) + sum(match.away_team_score for match in team.away_matches) #total goals scored by a team
+            goals_conceded = sum(match.away_team_score for match in team.home_matches) + sum(match.home_team_score for match in team.away_matches) #total goals conceded by a team
+            goal_difference = goals_scored - goals_conceded #GD calculation
+            team_data = (team.name, points, goal_difference, goals_scored, goals_conceded) #tuple with team's data
+            table.append(team_data) #append team data to table list
+        
+        #create tuple with the column headers for the league table
+        table_header = ("Team", "Pts", "GD", "GF", "GA")
+        print("League Table 📋 \n") #league table header
+        print("{:20} {:5} {:5} {:5} {:5}".format(*table_header))
+        table.sort(key=lambda x: (-x[1], -x[2], -x[3], x[0])) #sort table list on points, GD, GS and team name
+        for team_data in table:#print each row of the league table
+            print("{:20} {:5} {:5} {:5} {:5}".format(*team_data))
     else:
         print("No teams found!!")
+
 #view previous matches function
 def view_previous_matches():
     matches = session.query(Match).options(
@@ -178,7 +193,7 @@ def view_previous_matches():
     else:
         for match in matches:
             print(f"\nDate: {match.date_time}\nHome Team: {match.home_team.name} ({match.home_team_score}🏑) vs Away Team: {match.away_team.name} ({match.away_team_score}🏑) \nVenue: {match.venue.name}")
-
+#view available venues function
 def view_venues():
     venues = session.query(Venue).all()
     if venues:
@@ -191,6 +206,8 @@ def view_venues():
             print()
     else:
         print("No Venues Found!!")
+
+###EDITING  FUNCTIONS
 #function to change/edit coaches info
 def edit_coaches():
     coaches = session.query(Coach).all()
@@ -257,6 +274,7 @@ def edit_players():
 def edit_venues():
     pass
 
+##START OF INTERFACE FUNCTIONS - ADMIN and USER
 #admin interface to add players, teams, coaches, matches, venues and show team captains
 def admin_interface():
     while True:
