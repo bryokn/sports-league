@@ -7,12 +7,16 @@ This is a CLI application built with Python and SQLAlchemy to manage the Kipcheb
 - Assign team captains
 - View all registered players
 - Edit coaches, players and venues
+- Delete coaches, players, venues and teams
 
 **User Interface**
 - View teams and their players
 - View the league table
 - View previous match results
 - Check available venues and their schedules
+
+## Project Management
+The development of this project is being tracked on my <a href="https://trello.com/b/mklIKyVz/grassroots-league">Trello Board</a>.
 
 ## Getting started
 1. Clone the repository
