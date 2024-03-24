@@ -112,6 +112,7 @@ def view_all_players():
             else:
                 print("No players registered for this team.")
             print()
+            input("\nPress any key to go back to the previous menu...")
     else:
         print("No teams found!!")
 
@@ -175,12 +176,12 @@ def view_league_table():
             table.append(team_data) #append team data to table list
         
         #create tuple with the column headers for the league table
-        table_header = ("Team", "Pts", "GD", "GF", "GA")
+        table_header = ("Team", "Points", "Gl Diff", "Gl For", "Gl Against")
         print("League Table 📋 \n") #league table header
-        print("{:20} {:5} {:5} {:5} {:5}".format(*table_header))
+        print("{:20} {:5} {:8} {:8} {:8}".format(*table_header))
         table.sort(key=lambda x: (-x[1], -x[2], -x[3], x[0])) #sort table list on points, GD, GS and team name
         for team_data in table:#print each row of the league table
-            print("{:20} {:5} {:5} {:5} {:5}".format(*team_data))
+            print("{:20} {:5} {:5} {:8} {:8}".format(*team_data))
     else:
         print("No teams found!!")
 
@@ -204,6 +205,7 @@ def view_venues():
             print(f"Location: {venue.location}")
             print(f"Availability: {venue.availability_schedule}")
             print()
+            input("\nPress any key to go back to the previous menu...")
     else:
         print("No Venues Found!!")
 
@@ -278,7 +280,7 @@ def edit_venues():
         for venue in venues:
             print(f"Venue ID: {venue.id}")
             print(f"Name: {venue.name}")
-            print(f"Location: {veue.location}")
+            print(f"Location: {venue.location}")
             print(f"Availability Schedule: {venue.availability_schedule}")
             print()
         venue_id = int(input("Enter the Venue Id to edit: "))
@@ -299,13 +301,47 @@ def edit_venues():
             print("Invalid Venue ID!!")
     else:
         print("No venues found!")
+   
+##DELETE FUNCTIONS
+#delete venue
+def delete_venue():
+    venues = session.query(Venue).all()
+    if venues:
+        print("Available Venues:")
+        for venue in venues:
+            print(f"ID: {venue.id}, Name: {venue.name}")
+        venue_id = int(input("Enter the Venue ID to delete: "))
+        venue = session.get(Venue, venue_id)
+        if venue:
+            session.delete(venue)
+            session.commit()
+            print("Venue deleted successfully!!")
+            input("\nPress any key to go back...\n")
+        else:
+            print("Invalid Venue ID!!")
+    else:
+        print("No venues found!")
+
+#delete coach
+def delete_coach():
+    pass
+
+#delete player
+def delete_player():
+    pass
+
+#delete team
+def delete_team():
+    pass
+
+
                 
 ##START OF INTERFACE FUNCTIONS - ADMIN and USER
 #admin interface to add players, teams, coaches, matches, venues and show team captains
 def admin_interface():
     while True:
         print("🏑 Kipchebor Grassroots Hockey League 🏑\n")
-        print("Admin Roles 🛡️")
+        print("🛡️  ADMIN ROLES 🛡️")
         print("\n1. Add Team")
         print("2. Add Player")
         print("3. Add Coach")
@@ -314,10 +350,15 @@ def admin_interface():
         print("6. Assign Team Captains")
         print("7. Show Team Captains")
         print("8. View all registered players")
-        print("\n EDIT MODE")
+        print("\n 🖊  EDIT MODE 🖊")
         print("9. Edit coaches")
         print("10. Edit Players")
-        print("11. Edit Venues\n")
+        print("11. Edit Venues")
+        print("\n ❌ PURGE MODE ❌")
+        print("12. Remove Venue from system")
+        print("13. Remove Coach from system")
+        print("14. Remove Player from system")
+        print("15. Remove Team from System\n")
         print("0. Go Back")
         admin_choice = input("\nEnter your choice: ")
         if admin_choice == "1":
@@ -338,19 +379,29 @@ def admin_interface():
         elif admin_choice == "8":
             view_all_players()
             input("\n Press any key to go back to the previous menu...\n")
+            #edit choices
         elif admin_choice == "9":
             edit_coaches()
         elif admin_choice == "10":
             edit_players()
         elif admin_choice == "11":
             edit_venues()
+            #delete choices
+        elif admin_choice == "12":
+            delete_venue()
+        elif admin_choice == "13":
+            delete_coach()
+        elif admin_choice == "14":
+            delete_player()
+        elif admin_choice == "15":
+            delete_team()
         elif admin_choice == "0":
             print("Exiting admin interface...")
             break
         else:
             print("Invalid choice. Please try again.")
 
-#Main function to manage main menu
+#Main menu function
 def main():
     while True:
         print("\n🏑 Kipchebor Grassroots Hockey League 🏑")
@@ -359,7 +410,7 @@ def main():
         print("3. View League Table 📋")
         print("4. View Previous Match Results")
         print("5. Check Venues and Availability 🏟️")
-        print("0. Exit")
+        print("\n0. Exit")
         choice = input("\nEnter your choice: ")
         if choice == "1":
             admin_interface()
@@ -381,6 +432,6 @@ def main():
         else:
             print("Invalid choice. Try again")
         
-#Entry point of the system
+#System entry point
 if __name__ == "__main__":
     main()
