@@ -205,7 +205,7 @@ def view_venues():
             print(f"Location: {venue.location}")
             print(f"Availability: {venue.availability_schedule}")
             print()
-            input("\nPress any key to go back to the previous menu...")
+            #input("\nPress any key to go back to the previous menu...")
     else:
         print("No Venues Found!!")
 
@@ -324,18 +324,62 @@ def delete_venue():
 
 #delete coach
 def delete_coach():
-    pass
+    coaches = session.query(Coach).all()
+    if coaches:
+        print("Coaches:")
+        for coach in coaches:
+            print(f"ID: {coach.id}, Name: {coach.name}")
+        coach_id = int(input("Enter the Coach ID to delete: "))
+        coach = session.get(Coach, coach_id)
+        if coach:
+            session.delete(coach)
+            session.commit()
+            print("Coach deleted successfully!!")
+            input("\nPress any key to go back to the previous menu...\n")
+        else:
+            print("Invalid Coach ID!!")
+    else:
+        print("No coaches found!!")
 
 #delete player
 def delete_player():
-    pass
+    players = session.query(Player).all()
+    if players:
+        print("Players:")
+        for player in players:
+            print(f"ID: {player.id}, Name: {player.name}, Team: {player.team.name}")
+        player_id =int(input("Enter the Player ID to delete: "))
+        player = session.get(Player, player_id)
+        if player:
+            session.delete(player)
+            session.commit()
+            print("Player deleted successfully!")
+            input("\nPress any key to go back to the previous menu...\n")
+        else:
+            print("Invalid Player ID!")
+    else:
+        print("No Players Found!!")
 
 #delete team
 def delete_team():
-    pass
+    teams = session.query(Team).all()
+    if teams:
+        print("Teams: ")
+        for team in teams:
+            print(f"ID: {team.id}, Name: {team.name}")
+        team_id = int(input("Enter the Team ID to delete:"))
+        team = session.get(Team, team_id)
+        if team:
+            session.delete(team)
+            session.commit()
+            print("Team deleted successfully!!")
+            input("\nPress any key to go back to the previous menu...\n")
+        else:
+            print("Invalid Team ID!!")
+    else:
+        print("No teams found!!")
 
-
-                
+            
 ##START OF INTERFACE FUNCTIONS - ADMIN and USER
 #admin interface to add players, teams, coaches, matches, venues and show team captains
 def admin_interface():
